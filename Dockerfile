@@ -13,9 +13,10 @@ FROM arm32v7/ubuntu:bionic as emulated
 
 # Install python and dependencies
 RUN apt update
-RUN apt install -y python3-minimal
-RUN apt install -y python3-pip
+RUN apt install -y python3-minimal python3-dev python3-pip
+
 RUN pip3 install cython
+RUN pip3 install numpy
 
 COPY requirements.txt /src/requirements.txt
 RUN pip3 install -r /src/requirements.txt
@@ -29,6 +30,11 @@ RUN for fpath in `python3 -c 'import sys; print(" ".join(sys.path))'`; \
     cp -r $fpath /generated/$fpath; \
     done
 
+# Extract the python headers and library headers
+# to its own directory so they are easy to locate
+COPY copy_headers.py /copy_headers.py
+RUN python3 /copy_headers.py  /include
+
 # The second step of the multi step build is performed
 # in the official Axis ACAP SDK container. This allows
 # us to build from source. We use the container where the
@@ -37,3 +43,11 @@ RUN for fpath in `python3 -c 'import sys; print(" ".join(sys.path))'`; \
 # and use apt-get to install libraries and headers.
 from axisecp/acap-sdk:3.4.2-armv7hf-ubuntu20.04 as builder
 COPY --from=emulated /generated /generated
+COPY --from=emulated /include /include
+
+# TODO: Make sure we have same version of python on host to build
+# external modules as we are running on target.
+
+# Install the cython package since we will use it to cross compile
+# the external modules
+RUN pip install cython
