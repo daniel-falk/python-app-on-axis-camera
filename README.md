@@ -25,10 +25,10 @@ based on the official *AXIS ACAP SDK* container.
 
 ### Deployment of *python* binaries
 
-The example application in this repository is based on the *python3-minimal* distribution. This distribution together with a few *python* modules such as numpy consumes in the range of 100-150 MB of storage. In a rapid prototyping setting there should not be a need to optimize the distribution footprint or limit the number of used libraries. Therefore using either an SD-card in the camera or a *NFS* (*Network File System*) solution, as is used in this project, is recommended. Axis' camera's comes with
-*NFS* support out of the box. Using either a *NAS* (*Network-Attached Storage*) on the same network as the camera and the developer computer or a *Samba* server installed directly in the developer computer makes prototype deployment easy.
+The example application in this repository is based on the *python3-minimal* distribution. This distribution together with a few *python* modules such as numpy consumes in the range of 100-150 MB of storage. In a rapid prototyping setting there should not be a need to optimize the distribution footprint or limit the number of used libraries. Therefore using either an SD-card in the camera or a *NFS* (*Network File System*) solution is recommended. Axis' camera's comes with
+*NFS* support out of the box and many of them have a slot for an SD-card. Using either a *NAS* (*Network-Attached Storage*) on the same network as the camera and the developer computer or a *Samba* server installed directly in the developer computer makes prototype deployment easy.
 
-The downside with deploying the *python* interpreter and dependencies to the *NFS* storage is that the start-up time (when loading the binaries into memory) is extremely slow. The runtime impact, after loading the binaries, is however small.
+The downside with deploying the *python* interpreter and dependencies to the *NFS* storage is that the start-up time (when loading the binaries into memory) is extremely slow. The runtime impact, after loading the binaries, is however small. Loading from an SD-card is slow but considerably faster than loading from the *NFS* (depending on network speed and the class of the SD-card).
 
 ## Building, deploying and running the application
 
@@ -50,13 +50,12 @@ Make sure you have a *NFS* share configured and mounted on both the developer ma
 ### Build the development environment
 
 This is the slowest step, we will now do a multi stage *docker* build where the first step is emulated and installs the binary distributions, including *python*. In the second stage the *python* related headers are copied to the SDK image.
-
 ```bash
 make build-docker
 ```
 
-We can now deploy the *python* interpreter to the *NFS* where the camera can access it:
-
+We can now deploy the *python* interpreter to the *NFS* where the camera can access it. If you want to deploy it to the SD-card instead you can export the variable 
+`export DEPLOY_TO=sd_card` before running the following commands. You will also need to remount the SD-card as executable by running the command `make mount-exec`.
 ```bash
 make deploy-python
 ```
