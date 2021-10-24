@@ -31,7 +31,9 @@ DOCKER_RUN = docker run --rm ${IMAGE_NAME}
 DOCKER_RUN_MOUNT = docker run --rm -v `pwd`:/opt/app/ ${IMAGE_NAME}
 
 CAM_RUN = ssh -t ${CAM_USER}@${CAM_IP}
-CAM_PYTHON = PYTHONHOME=${CAM_INSTALL_DIR}/generated/usr ${CAM_INSTALL_DIR}/generated/${PYTHON_NAME}
+CAM_PYTHON = LD_LIBRARY_PATH=${CAM_INSTALL_DIR}/generated/libs \
+	     PYTHONHOME=${CAM_INSTALL_DIR}/generated/usr \
+	     ${CAM_INSTALL_DIR}/generated/${PYTHON_NAME}
 
 .PHONY: build-docker
 build-docker:

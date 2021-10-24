@@ -15,8 +15,12 @@ FROM arm32v7/ubuntu:bionic as emulated
 RUN apt update
 RUN apt install -y python3-minimal python3-dev python3-pip
 
+# Install numpy using apt since 1) this makes sure we install from
+# a binary distribution, 2) this will install the version compiled
+# with BLAS accelleration and the dependencies of it.
+RUN apt install -y python3-numpy
+
 RUN pip3 install cython
-RUN pip3 install numpy
 
 COPY requirements.txt /src/requirements.txt
 RUN pip3 install -r /src/requirements.txt
@@ -29,6 +33,12 @@ RUN for fpath in `python3 -c 'import sys; print(" ".join(sys.path))'`; \
     do mkdir -p /generated/$(dirname $fpath); \
     cp -r $fpath /generated/$fpath; \
     done
+
+COPY copy_lib.sh /copy_lib.sh
+RUN mkdir /generated/libs
+RUN /copy_lib.sh libblas.so.3 /generated/libs
+RUN /copy_lib.sh liblapack.so.3 /generated/libs
+RUN /copy_lib.sh libgfortran.so.4 /generated/libs
 
 # Extract the python headers and library headers
 # to its own directory so they are easy to locate
