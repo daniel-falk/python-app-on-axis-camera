@@ -95,6 +95,22 @@ The application can now be run using this command (or by *SSH*:ing to the camera
 make run-app
 ```
 
+## Debugging
+
+Once the development environment in built the container can be run interactively to debug the build process inside it:
+```bash
+docker run -v `pwd`:/src --rm -it cam-builder:latest
+source /opt/axis/acapsdk/environment-setup-cortexa9hf-neon-poky-linux-gnueabi
+export LDSHARED="$CC -shared"
+$CC -c -Iapp/src app/src/dummy_data.c
+```
+
+Since the docker build is a two stage build the first system snapshot is lost after the docker build has finished. If you need to debug e.g. installation of packages in the emulated container you can to so by building an image from only the first stage:
+```bash
+docker build . -t cam-builder:base --target emulated
+docker run -v `pwd`:/src --rm -it cam-builder:base
+```
+
 ## Things to consider
 
 There are some pitfalls when developing an application using this method:
