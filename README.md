@@ -12,10 +12,9 @@ This solution combines a pre-compiled *python* binary installed in an emulated d
 The first step in the process is to use an emulated target environment such that we can use `apt-get install` to install binaries and shared libraries and `pip install` to install open source (or internal) *python* packages. The main downside of running an emulated environment is that it is very slow. Installing the *python* language and interpreter together with open source libraries such as numpy can take somewhere in the order of 15-60 minutes. This step is however only needed once as the *docker*
 build scripts will cache the progress unless you touch any dependencies before this layer. I.e. you can add new requirements and rebuild the container using the *python* installation from the *docker* cache. This is all automatically handled by the *docker* daemon.
 
-The build process in this repository assumes that *qemu* is configured such that *docker* can run containers with binaries compiled for the *ARM* architecture. This can be setup using just two commands:
+The build process in this repository assumes that *qemu* is configured such that *docker* can run containers with binaries compiled for the *ARM* architecture. It should be enough to have the packages installed:
 ```bash
 apt-get install qemu binfmt-support qemu-user-static
-docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
 ```
 
 ### Cross compilation environment
